@@ -59,6 +59,48 @@ describe('API Routing Tests', () => {
         });
     })
 
+    // var data = {
+    //   email:"jack.n.c.tanner@gmail.com",
+    //   password: "Password1"
+    // }
+    // it("Should create a new user", (done) => {
+    //   var request = chai.request(LOCALHOST);
+    //   request.post('/signup')
+    //     .send(data)
+    //     .end((err, res) => {
+    //       assert.equal(res.body.message, "New user created.");
+    //       assert.equal(res.body.success, true);
+    //       assert.equal(res.body.email, data.email);
+    //       done();
+    //     });
+    // })
+    // var data = {
+    //   email:"jack.n.c.tanner@gmail.com",
+    //   url: "https://github.com/ugmo04/github-poo/",
+    // }
+    // it("User can make a claim to a new repository", (done) => {
+    //   var request = chai.request(LOCALHOST);
+    //   request.post('/user/make-claim')
+    //     .send(data)
+    //     .end((err, res) => {
+    //       assert.equal(res.body.message, "New repository claim made.");
+    //       assert.equal(res.body.success, true);
+    //       assert.equal(res.body.hash.length, 32);
+    //       done();
+    //     })
+    // })
+    //
+    // it("User tries to make a claim to reposity which does not have hash file.", (done) => {
+    //   var request = chai.request(LOCALHOST);
+    //   request.post('/user/make-claim')
+    //     .send(data)
+    //     .end((err, res) => {
+    //       assert.equal(res.body.message, "Repository was not verified.");
+    //       assert.equal(res.body.success, false);
+    //       done();
+    //     })
+    // })
+
     it("Check that user was added to database", (done) => {
       User.find({email:data.email}, (err, response) => {
         assert.equal(response.length, 1);
@@ -115,7 +157,7 @@ describe('API Routing Tests', () => {
   describe('POST /user/make-claim', () => {
     var data = {
       email:"ugmo04@hotmail.com",
-      url: "https://github.com/ugmo04/github-poo",
+      url: "https://github.com/ugmo04/github-poo/",
     }
     it("User can make a claim to a new repository", (done) => {
       var request = chai.request(LOCALHOST);
@@ -129,34 +171,45 @@ describe('API Routing Tests', () => {
         })
     })
 
-    var data2 = {
-      email:"ugmo@hotmail.com",
-      url: "https://github.com/ugmo04/github-poo",
-    }
-    it("Cannot make a claim to a user that does not exist", (done) => {
+    it("User tries to make a claim to reposity which does not have hash file.", (done) => {
       var request = chai.request(LOCALHOST);
       request.post('/user/make-claim')
-        .send(data2)
+        .send(data)
         .end((err, res) => {
-          assert.equal(res.body.message, "Email does not exists.");
+          assert.equal(res.body.message, "Repository was not verified.");
           assert.equal(res.body.success, false);
           done();
         })
     })
 
-    var data3 = {
-      email:"ugmo@hotmail.com",
-    }
-    it("URL not sent creates error", (done) => {
-      var request = chai.request(LOCALHOST);
-      request.post('/user/make-claim')
-        .send(data3)
-        .end((err, res) => {
-          assert.equal(res.body.message, "Invalid details sent.");
-          assert.equal(res.body.success, false);
-          done();
-        })
-    })
+  //   var data2 = {
+  //     email:"ugmo@hotmail.com",
+  //     url: "github.com/ugmo04/github-poo",
+  //   }
+  //   it("Cannot make a claim to a user that does not exist", (done) => {
+  //     var request = chai.request(LOCALHOST);
+  //     request.post('/user/make-claim')
+  //       .send(data2)
+  //       .end((err, res) => {
+  //         assert.equal(res.body.message, "Email does not exists.");
+  //         assert.equal(res.body.success, false);
+  //         done();
+  //       })
+  //   })
+  //
+  //   var data3 = {
+  //     email:"ugmo@hotmail.com",
+  //   }
+  //   it("URL not sent creates error", (done) => {
+  //     var request = chai.request(LOCALHOST);
+  //     request.post('/user/make-claim')
+  //       .send(data3)
+  //       .end((err, res) => {
+  //         assert.equal(res.body.message, "Invalid details sent.");
+  //         assert.equal(res.body.success, false);
+  //         done();
+  //       })
+  //   })
   })
 
   // describe('POST /login', () => {

@@ -3,6 +3,8 @@ var router = express.Router();
 var mongoose = require('mongoose');
 var configDb = require('../config/db.js');
 var crypto = require('crypto');
+var https = require('https');
+var urlModule = require('url');
 
 mongoose.connect(configDb.test);
 
@@ -51,6 +53,7 @@ router.post('/claims', (req, res) => {
 router.post("/make-claim", (req, res) => {
   console.log("POST /user/make-claim");
   //TODO: data object validation for security
+  console.log(req.body);
   if (!req.body.email || !req.body.url) {
     res.json({
       message:"Invalid details sent.",
@@ -58,15 +61,13 @@ router.post("/make-claim", (req, res) => {
     });
   } else {
     User.find({email:req.body.email}, (err, response) => {
-      // console.log(response);
-      // console.log(response[0].claims)
       if(response.length == 0) {
         res.json({
           message:"Email does not exists.",
           success:false
         })
       } else {
-        User.find({email:req.body.email, claims: {url:req.body.url}}, (err, response) => {
+        User.find({email:req.body.email, 'claims.url':req.body.url}, (err, response) => {
           if(response.length == 0) {
             // The repository has not been claimed by this user
             crypto.randomBytes(32/2, (err, buff) => {
@@ -101,10 +102,32 @@ router.post("/make-claim", (req, res) => {
             })
           } else {
             // The reposity is already in the process of being claimed
-            //TODO:verify that the repository has been added and
+            // Check if the file sent by email exists in folder /proofs/
+            var myClaim = response[0].claims[0];
+            var hash = myClaim.hash;
+            var myUrl = urlModule.parse(myClaim.url, true);
+            var myPath = myUrl.path + "/blob/master/proofs/" + myClaim.hash + ".txt";
+            https.request({
+              method:"HEAD",
+              host:myUrl.host,
+              path:myPath,
+            }, (response) => {
+              if(response.statusCode == 200) {
+                // File was found in repository!
+                //TODO: update claim status to true and retur json message
+
+              } else {
+                // File was not found in repository
+                res.json({
+                  message:"Repository was not verified.",
+                  success:false,
+                })
+              }
+            }).end();
           }
         })
       }
+
     })
   }
 })
