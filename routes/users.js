@@ -12,7 +12,7 @@ var userSchema = mongoose.Schema({
    passwordHash: String,
    claims: [{
      url: String,
-     status: Boolean,
+     verified: Boolean,
      hash: String,
    }],
 });
@@ -58,6 +58,8 @@ router.post("/make-claim", (req, res) => {
     });
   } else {
     User.find({email:req.body.email}, (err, response) => {
+      // console.log(response);
+      // console.log(response[0].claims)
       if(response.length == 0) {
         res.json({
           message:"Email does not exists.",
@@ -67,7 +69,6 @@ router.post("/make-claim", (req, res) => {
         User.find({email:req.body.email, claims: {url:req.body.url}}, (err, response) => {
           if(response.length == 0) {
             // The repository has not been claimed by this user
-            //TODO: generate hash
             crypto.randomBytes(32/2, (err, buff) => {
               if (err) {
                 res.json({
@@ -76,8 +77,13 @@ router.post("/make-claim", (req, res) => {
                 })
               } else {
                 // Generate hash and store in database
-                myHash = buff.toString("hex");
-                User.update({email:req.body.email}, {$push:{url:req.body.url, status:false, hash:myHash}}, (err, response) => {
+                var myHash = buff.toString("hex");
+                var newClaim = {
+                  "url":req.body.url,
+                  "verified":false,
+                  "hash":myHash,
+                }
+                User.update({email:req.body.email}, {$push:{claims:newClaim}}, (err, response) => {
                   if (err) {
                     res.json({
                       message:"Database error.",
@@ -101,12 +107,6 @@ router.post("/make-claim", (req, res) => {
       }
     })
   }
-})
-
-// Request that server checks that repository
-// has the code file
-router.post('/make-claim/verify', (req, res) => {
-  console.log("POST /user/make-claim/verify");
 })
 
 // Deletes a claim of a repository

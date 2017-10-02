@@ -17,7 +17,7 @@ var userSchema = mongoose.Schema({
    passwordHash: String,
    claims: [{
      url: String,
-     status: Boolean,
+     verified: Boolean,
      hash: String,
    }],
 });
@@ -125,6 +125,35 @@ describe('API Routing Tests', () => {
           assert.equal(res.body.message, "New repository claim made.");
           assert.equal(res.body.success, true);
           assert.equal(res.body.hash.length, 32);
+          done();
+        })
+    })
+
+    var data2 = {
+      email:"ugmo@hotmail.com",
+      url: "https://github.com/ugmo04/github-poo",
+    }
+    it("Cannot make a claim to a user that does not exist", (done) => {
+      var request = chai.request(LOCALHOST);
+      request.post('/user/make-claim')
+        .send(data2)
+        .end((err, res) => {
+          assert.equal(res.body.message, "Email does not exists.");
+          assert.equal(res.body.success, false);
+          done();
+        })
+    })
+
+    var data3 = {
+      email:"ugmo@hotmail.com",
+    }
+    it("URL not sent creates error", (done) => {
+      var request = chai.request(LOCALHOST);
+      request.post('/user/make-claim')
+        .send(data3)
+        .end((err, res) => {
+          assert.equal(res.body.message, "Invalid details sent.");
+          assert.equal(res.body.success, false);
           done();
         })
     })

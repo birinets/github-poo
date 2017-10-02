@@ -12,7 +12,7 @@ var userSchema = mongoose.Schema({
    passwordHash: String,
    claims: [{
      url: String,
-     status: Boolean,
+     verified: Boolean,
      hash: String,
    }],
 });
