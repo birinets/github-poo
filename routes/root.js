@@ -12,7 +12,8 @@ var userSchema = mongoose.Schema({
    passwordHash: String,
    claims: [{
      url: String,
-     status: Boolean
+     status: Boolean,
+     hash: String,
    }],
 });
 
@@ -30,6 +31,7 @@ try {
 router.post('/signup', (req, res) => {
   console.log("POST /signup")
   // Check that data is valid
+  //TODO: data object validation for security
   if (!req.body.email || !req.body.password) {
     res.json({
       message:"Invalid details.",
@@ -46,36 +48,42 @@ router.post('/signup', (req, res) => {
       } else {
         // Generate salt
         crypto.randomBytes(32/2, (err, buff) => {
-          if (err) throw err;
+          if (err) {
+            res.json({
+              message:"Failed to generate salt.",
+              success:false,
+            })
+          } else {
+            // Create password hash with salt
+            var newSalt = buff.toString('hex');
+            var passwordWithSalt = req.body.password + newSalt;
+            const hash = crypto.createHash('sha256');
+            hash.update(passwordWithSalt);
+            var hashedPassword = hash.digest('hex');
 
-          // Create password hash with salt
-          var newSalt = buff.toString('hex');
-          var passwordWithSalt = req.body.password + newSalt;
-          const hash = crypto.createHash('sha256');
-          hash.update(passwordWithSalt);
-          var hashedPassword = hash.digest('hex');
+            // Add user to database with salt
+            var newUser = new User({
+              email:req.body.email,
+              salt:newSalt,
+              passwordHash:hashedPassword
+            })
 
-          // Add user to database with salt
-          var newUser = new User({
-            email:req.body.email,
-            salt:newSalt,
-            passwordHash:hashedPassword
-          })
-
-          newUser.save( (err, User) => {
-            if(err) {
+            newUser.save( (err, User) => {
+              if(err) {
+                  res.json({
+                  message:"Database error.",
+                  success:false
+                })
+              } else {
                 res.json({
-                message:"Database error.",
-                success:false
-              })
-            } else {
-              res.json({
-                message:"New user created.",
-                success:true,
-                email:req.body.email,
-              })
-            }
-          })
+                  message:"New user created.",
+                  success:true,
+                  email:req.body.email,
+                })
+              }
+            })
+          }
+
         });
       }
     })

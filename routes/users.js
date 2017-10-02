@@ -12,7 +12,8 @@ var userSchema = mongoose.Schema({
    passwordHash: String,
    claims: [{
      url: String,
-     status: Boolean
+     status: Boolean,
+     hash: String,
    }],
 });
 
@@ -33,7 +34,7 @@ router.post('/claims', (req, res) => {
     });
   } else {
     User.find({email:req.body.email}, (err, response) => {
-      if(response.length != 1) {
+      if(response.length == 0) {
         res.json({
           message:"Email does not exists.",
           success:false
@@ -45,16 +46,61 @@ router.post('/claims', (req, res) => {
   }
 })
 
-// Fetches the repository claim with
-// supplied id
-router.get('/claims/:id', (req, res) => {
-  console.log("GET /user/claims/" + req.params.id);
-})
-
 // Request that an email be sent with code
 // to be added to repository
 router.post("/make-claim", (req, res) => {
   console.log("POST /user/make-claim");
+  //TODO: data object validation for security
+  if (!req.body.email || !req.body.url) {
+    res.json({
+      message:"Invalid details sent.",
+      success:false
+    });
+  } else {
+    User.find({email:req.body.email}, (err, response) => {
+      if(response.length == 0) {
+        res.json({
+          message:"Email does not exists.",
+          success:false
+        })
+      } else {
+        User.find({email:req.body.email, claims: {url:req.body.url}}, (err, response) => {
+          if(response.length == 0) {
+            // The repository has not been claimed by this user
+            //TODO: generate hash
+            crypto.randomBytes(32/2, (err, buff) => {
+              if (err) {
+                res.json({
+                  message:"Failed to generate hash.",
+                  success:false,
+                })
+              } else {
+                // Generate hash and store in database
+                myHash = buff.toString("hex");
+                User.update({email:req.body.email}, {$push:{url:req.body.url, status:false, hash:myHash}}, (err, response) => {
+                  if (err) {
+                    res.json({
+                      message:"Database error.",
+                      success:false
+                    })
+                  } else {
+                    res.json({
+                      message:"New repository claim made.",
+                      success:true,
+                      hash:myHash,
+                    })
+                  }
+                })
+              }
+            })
+          } else {
+            // The reposity is already in the process of being claimed
+            //TODO:verify that the repository has been added and
+          }
+        })
+      }
+    })
+  }
 })
 
 // Request that server checks that repository

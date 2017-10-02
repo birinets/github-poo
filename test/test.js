@@ -14,7 +14,12 @@ const LOCALHOST = 'http://localhost:' + server.port;
 var userSchema = mongoose.Schema({
    email: String,
    salt: String,
-   passwordHash: String
+   passwordHash: String,
+   claims: [{
+     url: String,
+     status: Boolean,
+     hash: String,
+   }],
 });
 
 var User = mongoose.model("User", userSchema);
@@ -119,7 +124,8 @@ describe('API Routing Tests', () => {
         .end((err, res) => {
           assert.equal(res.body.message, "New repository claim made.");
           assert.equal(res.body.success, true);
-          assert.equal(res.body.hash.length, 64);
+          assert.equal(res.body.hash.length, 32);
+          done();
         })
     })
   })
