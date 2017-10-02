@@ -9,17 +9,26 @@ mongoose.connect(configDb.test);
 var userSchema = mongoose.Schema({
    email: String,
    salt: String,
-   passwordHash: String
+   passwordHash: String,
+   claims: [{
+     url: String,
+     status: Boolean
+   }],
 });
 
-var User = mongoose.model("User", userSchema);
+var Users;
+try {
+  User = mongoose.model('User');
+} catch (error) {
+  User = mongoose.model("User", userSchema);
+}
+
+// var User = require('./mongo.js');
 
 // Allows user to create new login details with
 // email and password hash
 router.post('/signup', (req, res) => {
-  console.log("POST /signup");
-  console.log(req.session);
-  console.log("id: " + req.session.id);
+  console.log("POST /signup")
   // Check that data is valid
   if (!req.body.email || !req.body.password) {
     res.json({
@@ -60,24 +69,11 @@ router.post('/signup', (req, res) => {
                 success:false
               })
             } else {
-              console.log("User " + req.body.email +" created!");
-                            // Set the session for users to user at /user endpoint
-              req.session.user = "session1";
-              req.session.save( (err) => {
-                res.send("message sent...");
-                console.log(req.session);
-              });
-              // {
-              //   email:req.body.email,
-              // };
-              // console.log(req.session);
-              // Send back confirmation
-              // res.send("Message sent back...");
-              // res.json({
-              //   message:"New user created.",
-              //   success:true,
-              //   email:req.body.email,
-              // })
+              res.json({
+                message:"New user created.",
+                success:true,
+                email:req.body.email,
+              })
             }
           })
         });

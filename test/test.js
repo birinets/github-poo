@@ -92,9 +92,14 @@ describe('API Routing Tests', () => {
   })
 
   describe('POST /user/claims', () => {
+    var data = {
+      email:"ugmo04@hotmail.com",
+    }
+
     it("User initially has 0 claims", (done) => {
       var request = chai.request(LOCALHOST);
-      request.get('/user/claims')
+      request.post('/user/claims')
+        .send(data)
         .end((err, res) => {
           assert.equal(res.body.length, 0);
           done();
@@ -104,6 +109,7 @@ describe('API Routing Tests', () => {
 
   describe('POST /user/make-claim', () => {
     var data = {
+      email:"ugmo04@hotmail.com",
       url: "https://github.com/ugmo04/github-poo",
     }
     it("User can make a claim to a new repository", (done) => {

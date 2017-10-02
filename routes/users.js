@@ -1,24 +1,48 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
-// var configDb = require('../config/db.js');
+var configDb = require('../config/db.js');
 var crypto = require('crypto');
 
-// mongoose.connect(configDb.test);
+mongoose.connect(configDb.test);
 
-// var userSchema = mongoose.Schema({
-//    email: String,
-//    salt: String,
-//    passwordHash: String
-// });
+var userSchema = mongoose.Schema({
+   email: String,
+   salt: String,
+   passwordHash: String,
+   claims: [{
+     url: String,
+     status: Boolean
+   }],
+});
 
-// var User = mongoose.model("User", userSchema);
-
+var Users;
+try {
+  User = mongoose.model('User');
+} catch (error) {
+  User = mongoose.model("User", userSchema);
+}
 // Fetches the list of all repository claims
 // and their statuses that the user has
-router.get('/claims', (req, res) => {
-  console.log("GET /user/claims");
-  console.log(req.session);
+router.post('/claims', (req, res) => {
+  console.log("POST /user/claims");
+  if (!req.body.email) {
+    res.json({
+      message:"No user email sent.",
+      success:false
+    });
+  } else {
+    User.find({email:req.body.email}, (err, response) => {
+      if(response.length != 1) {
+        res.json({
+          message:"Email does not exists.",
+          success:false
+        })
+      } else {
+        res.json(response.claims);
+      }
+    })
+  }
 })
 
 // Fetches the repository claim with
