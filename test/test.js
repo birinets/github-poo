@@ -65,10 +65,6 @@ describe('API Routing Tests', () => {
       })
     })
 
-    // it("Check that a session has been granted", (done) => {
-    //   // done();
-    // })
-
     it("Cannot create a user again with the same email", (done) => {
       var request = chai.request(LOCALHOST);
       request.post('/signup')
@@ -95,22 +91,49 @@ describe('API Routing Tests', () => {
     })
   })
 
-  describe('POST /login', () => {
-    var data = {
-      email:"ugmo04@hotmail.com",
-      password: "Password1"
-    }
-
-    it("Should log in as ugmo04@hotmail.com user", (done) => {
+  describe('POST /user/claims', () => {
+    it("User initially has 0 claims", (done) => {
       var request = chai.request(LOCALHOST);
-      request.post('/login')
-        .send(data)
+      request.get('/user/claims')
         .end((err, res) => {
-          assert.equal(res.body.message, "Logged In.");
-          assert.equal(res.body.success, true);
-          assert.equal(res.body.email, data.email);
+          assert.equal(res.body.length, 0);
           done();
         });
     })
   })
+
+  describe('POST /user/make-claim', () => {
+    var data = {
+      url: "https://github.com/ugmo04/github-poo",
+    }
+    it("User can make a claim to a new repository", (done) => {
+      var request = chai.request(LOCALHOST);
+      request.post('/user/make-claim')
+        .send(data)
+        .end((err, res) => {
+          assert.equal(res.body.message, "New repository claim made.");
+          assert.equal(res.body.success, true);
+          assert.equal(res.body.hash.length, 64);
+        })
+    })
+  })
+
+  // describe('POST /login', () => {
+  //   var data = {
+  //     email:"ugmo04@hotmail.com",
+  //     password: "Password1"
+  //   }
+  //
+  //   it("Should log in as ugmo04@hotmail.com user", (done) => {
+  //     var request = chai.request(LOCALHOST);
+  //     request.post('/login')
+  //       .send(data)
+  //       .end((err, res) => {
+  //         assert.equal(res.body.message, "Logged In.");
+  //         assert.equal(res.body.success, true);
+  //         assert.equal(res.body.email, data.email);
+  //         done();
+  //       });
+  //   })
+  // })
 })
