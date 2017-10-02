@@ -2,9 +2,11 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
 var configDb = require('../config/db.js');
+var server = require('../config/server.js');
 var crypto = require('crypto');
 var https = require('https');
 var urlModule = require('url');
+var nodemailer = require('nodemailer');
 
 mongoose.connect(configDb.test);
 
@@ -76,8 +78,9 @@ router.post("/make-claim", (req, res) => {
                   success:false,
                 })
               } else {
-                // Generate hash and store in database
+                // Generate hash
                 var myHash = buff.toString("hex");
+                // Store the new claim in the database
                 var newClaim = {
                   "url":req.body.url,
                   "verified":false,
@@ -90,11 +93,32 @@ router.post("/make-claim", (req, res) => {
                       success:false
                     })
                   } else {
-                    res.json({
-                      message:"New repository claim made.",
-                      success:true,
-                      hash:myHash,
-                    })
+                    //TODO: send email with the hash
+                    var transporter = nodemailer.createTransport(server.email);
+                    var mailOptions = {
+                      from: server.email.auth.user,
+                      to: req.body.email,
+                      subject: 'Add this file to get Proof of Ownership of ' + req.body.url,
+                      text: 'Please add a file with name "' + myHash + '.txt" to the /proofs/ folder in the ' + req.body.url + " repository to get Proof of Ownership."
+                    };
+                    transporter.sendMail(mailOptions, function(err, info){
+                      if (err) {
+                        console.log(err);
+                        res.json({
+                          message:"New repository claim made but email was not delivered.",
+                          success:true,
+                          hash:myHash,
+                        })
+                      } else {
+                        console.log('Email sent: ' + info.response);
+                        res.json({
+                          message:"New repository claim made and email was sent.",
+                          success:true,
+                          hash:myHash,
+                        })
+                      }
+                    });
+
                   }
                 })
               }

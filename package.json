@@ -38,6 +38,7 @@
     "express-session": "^1.15.6",
     "mocha": "^3.5.3",
     "mongoose": "^4.11.14",
+    "nodemailer": "^4.1.1",
     "nodemon": "^1.12.1",
     "xml2js": "^0.4.19"
   }

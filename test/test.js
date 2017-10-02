@@ -138,7 +138,7 @@ describe('API Routing Tests', () => {
       request.post('/user/make-claim')
         .send(data)
         .end((err, res) => {
-          assert.equal(res.body.message, "New repository claim made.");
+          assert.equal(res.body.message, "New repository claim made and email was sent.");
           assert.equal(res.body.success, true);
           assert.equal(res.body.hash.length, 32);
           done();
