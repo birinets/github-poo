@@ -138,7 +138,12 @@ describe('API Routing Tests', () => {
       request.post('/user/make-claim')
         .send(data)
         .end((err, res) => {
-          assert.equal(res.body.message, "New repository claim made and email was sent.");
+          // TODO: check using IMAP package that message arrives
+          if(res.body.message == "New repository claim made and email was sent.") {
+            assert.equal(res.body.message, "New repository claim made and email was sent.");
+          } else {
+            assert.equal(res.body.message, "New repository claim made but email was not delivered.");
+          }
           assert.equal(res.body.success, true);
           assert.equal(res.body.hash.length, 32);
           done();
@@ -173,22 +178,39 @@ describe('API Routing Tests', () => {
 
   })
 
-  // describe('POST /login', () => {
-  //   var data = {
-  //     email:"ugmo04@hotmail.com",
-  //     password: "Password1"
-  //   }
-  //
-  //   it("Should log in as ugmo04@hotmail.com user", (done) => {
-  //     var request = chai.request(LOCALHOST);
-  //     request.post('/login')
-  //       .send(data)
-  //       .end((err, res) => {
-  //         assert.equal(res.body.message, "Logged In.");
-  //         assert.equal(res.body.success, true);
-  //         assert.equal(res.body.email, data.email);
-  //         done();
-  //       });
-  //   })
-  // })
+  describe('POST /login', () => {
+    var data = {
+      email:"ugmo04@hotmail.com",
+      password: "Password1"
+    }
+    it("Should log in as ugmo04@hotmail.com user", (done) => {
+      var request = chai.request(LOCALHOST);
+      request.post('/login')
+        .send(data)
+        .end((err, res) => {
+          assert.equal(res.body.message, "Logged In.");
+          assert.equal(res.body.success, true);
+          assert.equal(res.body.email, data.email);
+          done();
+        });
+    })
+  })
+
+  describe('DELETE /user/make-claim', () => {
+    var data = {
+      email:"ugmo04@hotmail.com",
+      url: "https://github.com/ugmo04/github-poo/",
+    }
+    it("Should delete the repository", (done) => {
+      var request = chai.request(LOCALHOST);
+      request.delete('/user/make-claim')
+        .send(data)
+        .end((err, res) => {
+          assert.equal(res.body.message, "Repository deleted.");
+          assert.equal(res.body.success, true);
+          assert.equal(res.body.url, data.url);
+          done();
+        });
+    })
+  })
 })
