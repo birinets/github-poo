@@ -105,7 +105,10 @@ router.post("/make-claim", (req, res) => {
             var myClaim = response[0].claims[0];
             var hash = myClaim.hash;
             var myUrl = urlModule.parse(myClaim.url, true);
-            var myPath = myUrl.path + "/blob/master/proofs/" + myClaim.hash + ".txt";
+            var myPath = myUrl.path + "blob/master/proofs/" + myClaim.hash + ".txt";
+            console.log("email: " + req.body.email);
+            console.log("claim: " + myClaim);
+            console.log("myPath: " + myPath);
             https.request({
               method:"HEAD",
               host:myUrl.host,
@@ -113,8 +116,20 @@ router.post("/make-claim", (req, res) => {
             }, (response) => {
               if(response.statusCode == 200) {
                 // File was found in repository!
-                //TODO: update claim status to true and retur json message
-
+                User.update({email:req.body.email, 'claims.url':req.body.url}, {$set:{'claims.verified':true}}, (err, response) => {
+                  if (err) {
+                    res.json({
+                      message:"Database error.",
+                      success:false
+                    })
+                  } else {
+                    res.json({
+                      message:"Repository was successfully verified.",
+                      success:true,
+                      hash:myHash,
+                    })
+                  }
+                })
               } else {
                 // File was not found in repository
                 res.json({
