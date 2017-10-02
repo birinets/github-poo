@@ -26,7 +26,7 @@ router.post('/signup', (req, res) => {
     });
   } else {
     // Check that user does not already exist
-    User.find({email:req.params.email}, (err, response) => {
+    User.find({email:req.body.email}, (err, response) => {
       if(response.length > 0) {
         res.json({
           message:"Email already exists.",
@@ -34,8 +34,7 @@ router.post('/signup', (req, res) => {
         })
       } else {
         // Generate salt
-        const BYTES_LENGTH = 128/8;
-        crypto.randomBytes(BYTES_LENGTH, (err, buff) => {
+        crypto.randomBytes(32/2, (err, buff) => {
           if (err) throw err;
 
           // Create password hash with salt
@@ -60,6 +59,9 @@ router.post('/signup', (req, res) => {
               })
             } else {
               console.log("User " + req.body.email +" created!");
+              req.session.user = {
+                email:req.body.email,
+              };
               res.json({
                 message:"New user created.",
                 success:true,

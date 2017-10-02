@@ -65,10 +65,9 @@ describe('API Routing Tests', () => {
       })
     })
 
-    it("Check that a session has been granted", (done) => {
-      // done();
-      // done();
-    })
+    // it("Check that a session has been granted", (done) => {
+    //   // done();
+    // })
 
     it("Cannot create a user again with the same email", (done) => {
       var request = chai.request(LOCALHOST);
@@ -81,16 +80,35 @@ describe('API Routing Tests', () => {
         });
     })
 
-    data = {
+    var data2 = {
       email:"ugmo04@hotmail.com"
     }
     it("Fails on invalid user details", (done) => {
       var request = chai.request(LOCALHOST);
       request.post('/signup')
-        .send(data)
+        .send(data2)
         .end((err, res) => {
           assert.equal(res.body.message, "Invalid details.");
           assert.equal(res.body.success, false);
+          done();
+        });
+    })
+  })
+
+  describe('POST /login', () => {
+    var data = {
+      email:"ugmo04@hotmail.com",
+      password: "Password1"
+    }
+
+    it("Should log in as ugmo04@hotmail.com user", (done) => {
+      var request = chai.request(LOCALHOST);
+      request.post('/login')
+        .send(data)
+        .end((err, res) => {
+          assert.equal(res.body.message, "Logged In.");
+          assert.equal(res.body.success, true);
+          assert.equal(res.body.email, data.email);
           done();
         });
     })
