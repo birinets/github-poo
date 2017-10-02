@@ -1,11 +1,24 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
+// var configDb = require('../config/db.js');
+var crypto = require('crypto');
+
+// mongoose.connect(configDb.test);
+
+// var userSchema = mongoose.Schema({
+//    email: String,
+//    salt: String,
+//    passwordHash: String
+// });
+
+// var User = mongoose.model("User", userSchema);
 
 // Fetches the list of all repository claims
 // and their statuses that the user has
 router.get('/claims', (req, res) => {
   console.log("GET /user/claims");
+  console.log(req.session);
 })
 
 // Fetches the repository claim with

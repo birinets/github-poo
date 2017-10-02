@@ -18,6 +18,8 @@ var User = mongoose.model("User", userSchema);
 // email and password hash
 router.post('/signup', (req, res) => {
   console.log("POST /signup");
+  console.log(req.session);
+  console.log("id: " + req.session.id);
   // Check that data is valid
   if (!req.body.email || !req.body.password) {
     res.json({
@@ -59,14 +61,23 @@ router.post('/signup', (req, res) => {
               })
             } else {
               console.log("User " + req.body.email +" created!");
-              req.session.user = {
-                email:req.body.email,
-              };
-              res.json({
-                message:"New user created.",
-                success:true,
-                email:req.body.email,
-              })
+                            // Set the session for users to user at /user endpoint
+              req.session.user = "session1";
+              req.session.save( (err) => {
+                res.send("message sent...");
+                console.log(req.session);
+              });
+              // {
+              //   email:req.body.email,
+              // };
+              // console.log(req.session);
+              // Send back confirmation
+              // res.send("Message sent back...");
+              // res.json({
+              //   message:"New user created.",
+              //   success:true,
+              //   email:req.body.email,
+              // })
             }
           })
         });
