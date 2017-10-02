@@ -5,7 +5,6 @@ var configDb = require('../config/db.js');
 var crypto = require('crypto');
 
 mongoose.connect(configDb.test);
-const hash = crypto.createHash('sha256');
 
 var userSchema = mongoose.Schema({
    email: String,
@@ -34,20 +33,18 @@ router.post('/signup', (req, res) => {
           success:false
         })
       } else {
-        console.log("No user found");
         // Generate salt
-        const BYTES_LENGTH = 128
+        const BYTES_LENGTH = 128/8;
         crypto.randomBytes(BYTES_LENGTH, (err, buff) => {
           if (err) throw err;
 
           // Create password hash with salt
           var newSalt = buff.toString('hex');
-          console.log("newSalt: " + newSalt);
           var passwordWithSalt = req.body.password + newSalt;
+          const hash = crypto.createHash('sha256');
           hash.update(passwordWithSalt);
           var hashedPassword = hash.digest('hex');
-          console.log("hashedPassword: " + hashedPassword);
-          
+
           // Add user to database with salt
           var newUser = new User({
             email:req.body.email,
@@ -62,7 +59,7 @@ router.post('/signup', (req, res) => {
                 success:false
               })
             } else {
-              console.log("User created!");
+              console.log("User " + req.body.email +" created!");
               res.json({
                 message:"New user created.",
                 success:true,
