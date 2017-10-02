@@ -11,26 +11,50 @@ chai.use(chaiHttp);
 
 const LOCALHOST = 'http://localhost:' + server.port;
 
+var userSchema = mongoose.Schema({
+   email: String,
+   salt: String,
+   passwordHash: String
+});
+
+var User = mongoose.model("User", userSchema);
+
 describe('API Routing Tests', () => {
   before( function(done) {
-    mongoose.connect(configDb.mongodb);
+    mongoose.connect(configDb.test);
+    // TODO: clear datbase
     done();
   })
 
   describe('POST /signup', () => {
-    it("Should ...", (done) => {
-      var data = {
-        email:"ugmo04@hotmail.com",
-        passwordHash: "aheaah"
-      }
+    var data = {
+      email:"ugmo04@hotmail.com",
+      password: "Password1"
+    }
+
+    it("Should create a new user and grant a session", (done) => {
       var request = chai.request(LOCALHOST);
       request.post('/signup')
         .send(data)
         .end((err, res) => {
-          assert.equal(res.body.message, "New user created");
-          assert.equal(res.body.location, "/movies/105");
+          assert.equal(res.body.message, "New user created.");
+          assert.equal(res.body.success, true);
+          assert.equal(res.body.email, data.email);
           done();
         });
+    })
+
+    it("Check that user was added to database", (done) => {
+      User.find({email:data.email}, (err, response) => {
+        assert(response.length, 1);
+
+        done();
+      })
+      // done();
+    })
+
+    it("Check that a session has been granted", (done) => {
+      // done();
     })
   })
 })
