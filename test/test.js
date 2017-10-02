@@ -26,6 +26,7 @@ var User = mongoose.model("User", userSchema);
 
 describe('API Routing Tests', () => {
   before( function(done) {
+    // Connect to and whipe database
     mongoose.connect(configDb.test);
     User.find({}).remove().exec();
 
@@ -38,7 +39,23 @@ describe('API Routing Tests', () => {
         console.log(response);
       }
     })
-    done();
+
+    // Create user that can be verified that file exists in repository
+    var newUser = new User({
+      email: "jack.n.c.tanner@gmail.com",
+    	salt: "3ca1aaba4c9cc6536a7dee95838f6cbf",
+    	passwordHash: "03fa7318e34dc7a270839f6e85e43ea8063f7be13a09a91e13e6dc9361dcc6b2",
+      // corresponds to password: "Password1"
+    	claims: [{
+    			hash: "c0041d390018c8b68edacc0a79ff4002",
+    			verified: false,
+    			url: "https://github.com/ugmo04/github-poo/"
+    		}]
+    })
+    newUser.save( (err) => {
+      if (err) throw err;
+      done();
+    });
   })
 
   describe('POST /signup', () => {
@@ -46,7 +63,6 @@ describe('API Routing Tests', () => {
       email:"ugmo04@hotmail.com",
       password: "Password1"
     }
-
     it("Should create a new user", (done) => {
       var request = chai.request(LOCALHOST);
       request.post('/signup')
@@ -58,48 +74,6 @@ describe('API Routing Tests', () => {
           done();
         });
     })
-
-    // var data = {
-    //   email:"jack.n.c.tanner@gmail.com",
-    //   password: "Password1"
-    // }
-    // it("Should create a new user", (done) => {
-    //   var request = chai.request(LOCALHOST);
-    //   request.post('/signup')
-    //     .send(data)
-    //     .end((err, res) => {
-    //       assert.equal(res.body.message, "New user created.");
-    //       assert.equal(res.body.success, true);
-    //       assert.equal(res.body.email, data.email);
-    //       done();
-    //     });
-    // })
-    // var data = {
-    //   email:"jack.n.c.tanner@gmail.com",
-    //   url: "https://github.com/ugmo04/github-poo/",
-    // }
-    // it("User can make a claim to a new repository", (done) => {
-    //   var request = chai.request(LOCALHOST);
-    //   request.post('/user/make-claim')
-    //     .send(data)
-    //     .end((err, res) => {
-    //       assert.equal(res.body.message, "New repository claim made.");
-    //       assert.equal(res.body.success, true);
-    //       assert.equal(res.body.hash.length, 32);
-    //       done();
-    //     })
-    // })
-    //
-    // it("User tries to make a claim to reposity which does not have hash file.", (done) => {
-    //   var request = chai.request(LOCALHOST);
-    //   request.post('/user/make-claim')
-    //     .send(data)
-    //     .end((err, res) => {
-    //       assert.equal(res.body.message, "Repository was not verified.");
-    //       assert.equal(res.body.success, false);
-    //       done();
-    //     })
-    // })
 
     it("Check that user was added to database", (done) => {
       User.find({email:data.email}, (err, response) => {
@@ -182,34 +156,21 @@ describe('API Routing Tests', () => {
         })
     })
 
-  //   var data2 = {
-  //     email:"ugmo@hotmail.com",
-  //     url: "github.com/ugmo04/github-poo",
-  //   }
-  //   it("Cannot make a claim to a user that does not exist", (done) => {
-  //     var request = chai.request(LOCALHOST);
-  //     request.post('/user/make-claim')
-  //       .send(data2)
-  //       .end((err, res) => {
-  //         assert.equal(res.body.message, "Email does not exists.");
-  //         assert.equal(res.body.success, false);
-  //         done();
-  //       })
-  //   })
-  //
-  //   var data3 = {
-  //     email:"ugmo@hotmail.com",
-  //   }
-  //   it("URL not sent creates error", (done) => {
-  //     var request = chai.request(LOCALHOST);
-  //     request.post('/user/make-claim')
-  //       .send(data3)
-  //       .end((err, res) => {
-  //         assert.equal(res.body.message, "Invalid details sent.");
-  //         assert.equal(res.body.success, false);
-  //         done();
-  //       })
-  //   })
+    var data2 = {
+      email:"jack.n.c.tanner@gmail.com",
+      url: "https://github.com/ugmo04/github-poo/",
+    }
+    it("User tries to make a claim to reposity which does have hash file.", (done) => {
+      var request = chai.request(LOCALHOST);
+      request.post('/user/make-claim')
+        .send(data2)
+        .end((err, res) => {
+          assert.equal(res.body.message, "Repository was sucessfully verified.");
+          assert.equal(res.body.success, true);
+          done();
+        })
+    })
+
   })
 
   // describe('POST /login', () => {

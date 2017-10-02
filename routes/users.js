@@ -53,7 +53,6 @@ router.post('/claims', (req, res) => {
 router.post("/make-claim", (req, res) => {
   console.log("POST /user/make-claim");
   //TODO: data object validation for security
-  console.log(req.body);
   if (!req.body.email || !req.body.url) {
     res.json({
       message:"Invalid details sent.",
