@@ -165,7 +165,7 @@ describe('API Routing Tests', () => {
       request.post('/user/make-claim')
         .send(data2)
         .end((err, res) => {
-          assert.equal(res.body.message, "Repository was sucessfully verified.");
+          assert.equal(res.body.message, "Repository was successfully verified.");
           assert.equal(res.body.success, true);
           done();
         })
