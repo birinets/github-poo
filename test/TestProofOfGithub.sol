@@ -8,14 +8,14 @@ import "../contracts/ProofOfGithub.sol";
 contract TestProofOfGithub {
 
   function testCreateClaim() {
-    ProofOfGithub pom = ProofOfGithub(DeployedAddresses.ProofOfGithub());
+    ProofOfGithub pog = ProofOfGithub(DeployedAddresses.ProofOfGithub());
 
-    uint myTotalClaims = pom.totalClaims(msg.sender);
+    uint myTotalClaims = pog.totalClaims(msg.sender);
     Assert.equal(myTotalClaims, 0, "Should originally have 0 claims");
 
-    pom.createClaim("https://github.com/ugmo04/github-poo/");
+    pog.createClaim("https://github.com/ugmo04/github-poo/");
 
-    myTotalClaims = pom.totalClaims(msg.sender);
+    myTotalClaims = pog.totalClaims(msg.sender);
     Assert.equal(myTotalClaims, 1, "Should now have 1 claim");
   }
 
