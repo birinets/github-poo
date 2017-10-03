@@ -20,7 +20,7 @@ contract ProofOfGithub is Ownable, usingOraclize {
 
     struct ClaimReference {
         uint8 claimNo;
-        string url;
+        address addr;
     }
 
     mapping (address => mapping (uint8 => Claim)) public claims; // Limit user to 256 claims for now
@@ -37,10 +37,14 @@ contract ProofOfGithub is Ownable, usingOraclize {
      * @params _url The Github URL that will be claimed
      */
     function createClaim(string _url) external {
-        totalClaims[msg.sender]++; // TODO: use safeMath // Note: value 0 is used as error value
+        // Check that claim url does not already exist
+        uint8 claimNo = getClaimNo(_url);
 
+        if ( claimNo == 0 ) {
+            totalClaims[msg.sender]++; // TODO: use safeMath // Note: value 0 is used as error value
 
-        // TODO: check that new claim does not already exist
+            claimNo = totalClaims[msg.sender];
+        }
 
         // Generate a unique hash that can be checked against
         bytes32 myHash = sha256(block.number, msg.sender, _url);
@@ -49,9 +53,9 @@ contract ProofOfGithub is Ownable, usingOraclize {
         Claim memory newClaim = Claim(_url, false, myHash);
 
         // Store the claim for later use
-        uint8 claimNo = totalClaims[msg.sender];
         claims[msg.sender][claimNo] = newClaim;
 
+        // Emit event
         claimCreated(msg.sender, _url, myHash);
     }
 
@@ -62,25 +66,26 @@ contract ProofOfGithub is Ownable, usingOraclize {
     function validateClaim(string _url) external {
         // Check that claim has been made and get claimNo
         uint8 claimNo = getClaimNo(_url);
+
         if (claimNo == 0) {
             // Claim does not exist
             revert();
         } else {
             // Get owner and repository from URL
-            Claim memory myClaim = claims[msg.sender][claimNo];
             string memory repositoryOwner;
             string memory repository;
             (repositoryOwner, repository) = getOwnerRepository(_url);
 
             // Get hash from storage
-            bytes32 hash = claims[msg.sender][claimNo].hash;
+            Claim memory myClaim = claims[msg.sender][claimNo];
+            bytes32 hash = myClaim.hash;
 
             // Create api url
             string memory queryString = createGithubQuery(repositoryOwner, repository, hash);
             bytes32 myid = oraclize_query("URL", queryString);
 
             // Save ClaimReference for use in __callback
-            ClaimReference memory myClaimReference = ClaimReference(claimNo, _url);
+            ClaimReference memory myClaimReference = ClaimReference(claimNo, msg.sender);
             myidLookup[myid] = myClaimReference;
         }
     }
@@ -90,9 +95,23 @@ contract ProofOfGithub is Ownable, usingOraclize {
      * @params myid Unique id for each query
      * @params result Result of query
      */
-    function __callback(bytes32 myid, string result) external {
-        if (msg.sender != oraclize_cbAddress()) throw;
-        // TODO
+    function __callback(bytes32 myid, string result) public {
+        if (msg.sender != oraclize_cbAddress()) revert();
+
+        ClaimReference memory claimref = myidLookup[myid];
+
+        if( claimref.addr == 0) {
+            // Myid was not assigned to a valid ClaimReference
+            revert();
+        } else {
+            // Check that result was expected
+            if ( resultIsCorrect(result) ) {
+                Claim memory myClaim = claims[claimref.addr][claimref.claimNo];
+
+                myClaim.status = true;
+                claimValidated(claimref.addr, myClaim.url);
+            }
+        }
     }
 
     /*
@@ -123,5 +142,14 @@ contract ProofOfGithub is Ownable, usingOraclize {
     function getOwnerRepository(string _url) internal returns (string, string) {
         // TODO
         return ("", "");
+    }
+
+    /*
+     * Returns true when the result is the expected string
+     * @params result The result string to compare against
+     */
+    function resultIsCorrect(string result) internal returns (bool) {
+        // TODO
+        return true;
     }
 }
