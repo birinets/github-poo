@@ -1,32 +1,13 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
-var configDb = require('../config/db.js');
+var User = require('../models/users.js');
 var server = require('../config/server.js');
 var crypto = require('crypto');
 var https = require('https');
 var urlModule = require('url');
 var nodemailer = require('nodemailer');
 
-mongoose.connect(configDb.test);
-
-var userSchema = mongoose.Schema({
-   email: String,
-   salt: String,
-   passwordHash: String,
-   claims: [{
-     url: String,
-     verified: Boolean,
-     hash: String,
-   }],
-});
-
-var Users;
-try {
-  User = mongoose.model('User');
-} catch (error) {
-  User = mongoose.model("User", userSchema);
-}
 // Fetches the list of all repository claims
 // and their statuses that the user has
 router.post('/claims', (req, res) => {
@@ -93,7 +74,6 @@ router.post("/make-claim", (req, res) => {
                       success:false
                     })
                   } else {
-                    //TODO: send email with the hash
                     var transporter = nodemailer.createTransport(server.email);
                     var mailOptions = {
                       from: server.email.auth.user,

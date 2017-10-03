@@ -1,30 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
-var configDb = require('../config/db.js');
+var User = require('../models/users.js');
 var crypto = require('crypto');
-
-mongoose.connect(configDb.test);
-
-var userSchema = mongoose.Schema({
-   email: String,
-   salt: String,
-   passwordHash: String,
-   claims: [{
-     url: String,
-     verified: Boolean,
-     hash: String,
-   }],
-});
-
-var Users;
-try {
-  User = mongoose.model('User');
-} catch (error) {
-  User = mongoose.model("User", userSchema);
-}
-
-// var User = require('./mongo.js');
 
 // Allows user to create new login details with
 // email and password hash
