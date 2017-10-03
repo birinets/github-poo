@@ -225,7 +225,6 @@ contract ProofOfGithub is Ownable, usingOraclize {
      * @params result The result string to compare against
      */
     function resultIsCorrect(string result) constant internal returns (bool) {
-        // TODO
-        return true;
+        return stringsEqual(result, "I exist");
     }
 }
