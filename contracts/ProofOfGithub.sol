@@ -153,7 +153,7 @@ contract ProofOfGithub is Ownable, usingOraclize {
      * Returns the owner and repository name from a supplied url
      * @params _url The Github url
      */
-    function getOwnerRepository(string _url) internal returns (string, string) {
+    function getOwnerRepository(string _url) constant internal returns (string, string) {
         strings.slice memory surl = _url.toSlice();
         strings.slice memory sgit = "https://github.com/".toSlice();
         strings.slice memory sown = surl.copy().beyond(sgit).until("/".toSlice());
@@ -168,9 +168,55 @@ contract ProofOfGithub is Ownable, usingOraclize {
      * @params _repository The repository name
      * @params _hash The hash that should be found
      */
-    function createGithubQuery(string _repositoryOwner, string _repository, bytes32 _hash) internal returns (string) {
-        // TODO
-        return "";
+    function createGithubQuery(string _repositoryOwner, string _repository, bytes32 _hash) constant internal returns (string) {
+        string memory s1 = 'https://api.github.com/repos/"';
+        string memory s3 = "";
+        string memory s5 = '/contents/proofs';
+        string memory s7 = '.txt';
+
+        bytes memory result = concatBytes(bytes(s1), bytes(_repositoryOwner), bytes(s3), bytes(_repository), bytes(s5), bytes(bytes32ToString(_hash)), bytes(s7));
+        return string(result);
+    }
+
+    /**
+     * Returns a concatenation of seven bytes.
+     * @param b1 The first bytes to be concatenated.
+     * ...
+     * @param b7 The last bytes to be concatenated.
+     */
+    function concatBytes(bytes b1, bytes b2, bytes b3, bytes b4, bytes b5, bytes b6, bytes b7) internal returns (bytes bFinal) {
+        bFinal = new bytes(b1.length + b2.length + b3.length + b4.length + b5.length + b6.length + b7.length);
+
+        uint i = 0;
+        uint j;
+        for (j = 0; j < b1.length; j++) bFinal[i++] = b1[j];
+        for (j = 0; j < b2.length; j++) bFinal[i++] = b2[j];
+        for (j = 0; j < b3.length; j++) bFinal[i++] = b3[j];
+        for (j = 0; j < b4.length; j++) bFinal[i++] = b4[j];
+        for (j = 0; j < b5.length; j++) bFinal[i++] = b5[j];
+        for (j = 0; j < b6.length; j++) bFinal[i++] = b6[j];
+        for (j = 0; j < b7.length; j++) bFinal[i++] = b7[j];
+    }
+
+    /*
+     * Converts a bytes32 to a string
+     */
+    // Obtained from https://ethereum.stackexchange.com/questions/2519/how-to-convert-a-bytes32-to-string
+    function bytes32ToString(bytes32 x) constant internal returns (string) {
+        bytes memory bytesString = new bytes(32);
+        uint charCount = 0;
+        for (uint j = 0; j < 32; j++) {
+            byte char = byte(bytes32(uint(x) * 2 ** (8 * j)));
+            if (char != 0) {
+                bytesString[charCount] = char;
+                charCount++;
+            }
+        }
+        bytes memory bytesStringTrimmed = new bytes(charCount);
+        for (j = 0; j < charCount; j++) {
+            bytesStringTrimmed[j] = bytesString[j];
+        }
+        return string(bytesStringTrimmed);
     }
 
 
@@ -178,7 +224,7 @@ contract ProofOfGithub is Ownable, usingOraclize {
      * Returns true when the result is the expected string
      * @params result The result string to compare against
      */
-    function resultIsCorrect(string result) internal returns (bool) {
+    function resultIsCorrect(string result) constant internal returns (bool) {
         // TODO
         return true;
     }
