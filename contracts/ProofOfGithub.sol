@@ -119,9 +119,33 @@ contract ProofOfGithub is Ownable, usingOraclize {
      * @params _url the url that was claimed
      */
     function getClaimNo(string _url) internal returns (uint8) {
-        // TODO
+        for (uint8 i = 0; i < 256; i++) {
+            Claim memory myClaim = claims[msg.sender][i];
+
+            if( stringsEqual(myClaim.url, _url) ) {
+                return i;
+            }
+        }
         return 0;
     }
+
+    /*
+     * Returns true if two strings are the username
+     * @params a The first string to compare
+     * @params b The second string to compare
+     */
+    // Obtained from https://forum.ethereum.org/discussion/3238/string-compare-in-solidity
+    function stringsEqual(string memory _a, string memory _b) internal returns (bool) {
+		bytes memory a = bytes(_a);
+		bytes memory b = bytes(_b);
+		if (a.length != b.length)
+			return false;
+		// @todo unroll this loop
+		for (uint i = 0; i < a.length; i ++)
+			if (a[i] != b[i])
+				return false;
+		return true;
+	}
 
     /*
      * Returns a string which can be passed to Oraclize to check if the hashed
