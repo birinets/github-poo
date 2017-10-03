@@ -6,8 +6,10 @@ var urlModule = require('url');
 var nodemailer = require('nodemailer');
 var server = require('../config/server.js');
 
-// Fetches the list of all repository claims
-// and their statuses that the user has
+/*
+ * POST /user/claims Returns the list of all claims that a user has made
+ * @param email The email address of the user
+ */
 function postClaims(req, res) {
   console.log("POST /user/claims");
   if (!req.body.email) {
@@ -29,8 +31,12 @@ function postClaims(req, res) {
   }
 }
 
-// Request that an email be sent with code
-// to be added to repository
+/*
+ * POST /user/make-claim Submits a new claim if it does not exist or
+ *                       validates an existing claim if it does exist
+ * @param email The email address of the user
+ * @param url The url of the Github repository that is being claimed
+ */
 function postMakeClaim(req, res) {
   console.log("POST /user/make-claim");
   //TODO: data object validation for security

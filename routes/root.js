@@ -2,8 +2,11 @@ var mongoose = require('mongoose');
 var User = require('../models/users.js');
 var crypto = require('crypto');
 
-// Allows user to create new login details with
-// email and password hash
+/*
+ * POST /signup Creates a new userSchema
+ * @param email The email address of the user
+ * &param password The password of the user
+ */
 function postSignup(req, res) {
   console.log("POST /signup")
   // Check that data is valid
@@ -66,8 +69,11 @@ function postSignup(req, res) {
   }
 }
 
-// Allows user to login in using previously
-// created email and password hash
+/*
+ * POST /login Authenticates the user details if the password is correct
+ * @param email The email address of the user
+ * &param password The password of the user
+ */
 function postLogin(req, res) {
   console.log("POST /login");
   // Check that data is valid
@@ -111,5 +117,4 @@ function postLogin(req, res) {
   }
 }
 
-// module.exports = router;
 module.exports = { postSignup, postLogin };

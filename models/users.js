@@ -1,8 +1,10 @@
 var mongoose = require('mongoose');
 var configDb = require('../config/db.js');
 
+// Connect to the MongoDb database
 mongoose.connect(configDb.test);
 
+// User schema definition
 var userSchema = mongoose.Schema({
    email: String,
    salt: String,
@@ -14,6 +16,7 @@ var userSchema = mongoose.Schema({
    }],
 });
 
+// If the collection is not already created, create it
 var Users;
 try {
   User = mongoose.model('User');
