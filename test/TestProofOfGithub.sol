@@ -7,10 +7,16 @@ import "../contracts/ProofOfGithub.sol";
 
 contract TestProofOfGithub {
 
-  function testDeployed() {
+  function testCreateClaim() {
     ProofOfGithub pom = ProofOfGithub(DeployedAddresses.ProofOfGithub());
 
-    Assert.equal(pom.stub(), 1, "Stub should be 1");
+    uint myTotalClaims = pom.totalClaims(msg.sender);
+    Assert.equal(myTotalClaims, 0, "Should originally have 0 claims");
+
+    pom.createClaim("https://github.com/ugmo04/github-poo/");
+
+    myTotalClaims = pom.totalClaims(msg.sender);
+    Assert.equal(myTotalClaims, 1, "Should now have 1 claim");
   }
 
 }
