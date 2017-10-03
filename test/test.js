@@ -194,6 +194,21 @@ describe('API Routing Tests', () => {
           done();
         });
     })
+
+    var data2 = {
+      email:"ugmo04@hotmail.com",
+      password: "WrongPassword"
+    }
+    it("Should fail to log in as ugmo04@hotmail.com user", (done) => {
+      var request = chai.request(LOCALHOST);
+      request.post('/login')
+        .send(data2)
+        .end((err, res) => {
+          assert.equal(res.body.message, "Not logged In.");
+          assert.equal(res.body.success, false);
+          done();
+        });
+    })
   })
 
   describe('DELETE /user/make-claim', () => {

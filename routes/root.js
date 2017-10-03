@@ -94,6 +94,45 @@ router.post('/signup', (req, res) => {
 // created email and password hash
 router.post("/login", (req, res) => {
   console.log("POST /login");
+  // Check that data is valid
+  //TODO: data object validation for security
+  if (!req.body.email || !req.body.password) {
+    res.json({
+      message:"Invalid details.",
+      success:false
+    });
+  } else {
+    // Check that user does already exist
+    User.find({email:req.body.email}, (err, response) => {
+      if(response.length != 1) {
+        res.json({
+          message:"Email does not exist.",
+          success:false
+        })
+      } else {
+        // Get hashedPassword
+        var mySalt = response[0].salt;
+        var passwordWithSalt = req.body.password + mySalt;
+        const hash = crypto.createHash('sha256');
+        hash.update(passwordWithSalt);
+        var hashedPassword = hash.digest('hex');
+
+        // Compare to database value
+        if(hashedPassword == response[0].passwordHash) {
+          res.json({
+            message:"Logged In.",
+            success:true,
+            email:req.body.email,
+          })
+        } else {
+          res.json({
+            message:"Not logged In.",
+            success:false,
+          })
+        }
+      }
+    })
+  }
 })
 
 module.exports = router;
