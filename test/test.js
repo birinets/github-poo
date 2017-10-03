@@ -150,6 +150,13 @@ describe('API Routing Tests', () => {
         })
     })
 
+    it("Check that claim was created in database", (done) => {
+      User.find({email:data.email, 'claims.url':data.url}, (err, response) => {
+        assert.equal(response.length, 1);
+        done();
+      })
+    })
+
     it("User tries to make a claim to reposity which does not have hash file.", (done) => {
       var request = chai.request(LOCALHOST);
       request.post('/user/make-claim')
@@ -211,21 +218,4 @@ describe('API Routing Tests', () => {
     })
   })
 
-  describe('DELETE /user/make-claim', () => {
-    var data = {
-      email:"ugmo04@hotmail.com",
-      url: "https://github.com/ugmo04/github-poo/",
-    }
-    it("Should delete the repository", (done) => {
-      var request = chai.request(LOCALHOST);
-      request.delete('/user/make-claim')
-        .send(data)
-        .end((err, res) => {
-          assert.equal(res.body.message, "Repository deleted.");
-          assert.equal(res.body.success, true);
-          assert.equal(res.body.url, data.url);
-          done();
-        });
-    })
-  })
 })

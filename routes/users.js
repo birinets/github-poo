@@ -166,9 +166,4 @@ router.post("/make-claim", (req, res) => {
   }
 })
 
-// Deletes a claim of a repository
-router.delete('make-claim', (req, res) => {
-    console.log("DELETE /user/make-claim");
-})
-
 module.exports = router;
