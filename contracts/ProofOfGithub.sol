@@ -147,6 +147,20 @@ contract ProofOfGithub is Ownable, usingOraclize {
 		return true;
 	}
 
+	// https://github.com/ugmo04/github-poo
+
+	/*
+     * Returns the owner and repository name from a supplied url
+     * @params _url The Github url
+     */
+    function getOwnerRepository(string _url) internal returns (string, string) {
+        strings.slice memory surl = _url.toSlice();
+        strings.slice memory sgit = "https://github.com/".toSlice();
+        strings.slice memory sown = surl.copy().beyond(sgit).until("/".toSlice());
+        strings.slice memory srep = surl.beyond(sown);
+        return (sown.toString(), srep.toString());
+    }
+
     /*
      * Returns a string which can be passed to Oraclize to check if the hashed
      * file was placed in a Github repository
@@ -159,14 +173,6 @@ contract ProofOfGithub is Ownable, usingOraclize {
         return "";
     }
 
-    /*
-     * Returns the owner and repository name from a supplied url
-     * @params _url The Github url
-     */
-    function getOwnerRepository(string _url) internal returns (string, string) {
-        // TODO
-        return ("", "");
-    }
 
     /*
      * Returns true when the result is the expected string
