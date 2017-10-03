@@ -1,12 +1,10 @@
-var express = require('express');
-var router = express.Router();
 var mongoose = require('mongoose');
 var User = require('../models/users.js');
 var crypto = require('crypto');
 
 // Allows user to create new login details with
 // email and password hash
-router.post('/signup', (req, res) => {
+function postSignup(req, res) {
   console.log("POST /signup")
   // Check that data is valid
   //TODO: data object validation for security
@@ -66,11 +64,11 @@ router.post('/signup', (req, res) => {
       }
     })
   }
-})
+}
 
 // Allows user to login in using previously
 // created email and password hash
-router.post("/login", (req, res) => {
+function postLogin(req, res) {
   console.log("POST /login");
   // Check that data is valid
   //TODO: data object validation for security
@@ -111,6 +109,7 @@ router.post("/login", (req, res) => {
       }
     })
   }
-})
+}
 
-module.exports = router;
+// module.exports = router;
+module.exports = { postSignup, postLogin };

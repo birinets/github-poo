@@ -1,10 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var server = require('./config/server.js');
-// var multer = require('multer');
-// var upload = multer();
-// var session = require('express-session');
-// var cookieParser = require('cookie-parser');
 
 var app = express();
 
@@ -12,14 +8,15 @@ var app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//Assign router to root url
+//Assign root to root router
 var root = require('./routes/root.js');
-app.use('/', root);
+app.route("/signup").post(root.postSignup);
+app.route("/login").post(root.postLogin);
 
-//Assign user router to root url
+//Assign user router to user router
 var users = require('./routes/users.js');
-app.use('/user', users);
-
+app.route('/user/claims').post(users.postClaims);
+app.route('/user/make-claim').post(users.postMakeClaim);
 
 // Set up port and server
 app.listen(server.port, () => {

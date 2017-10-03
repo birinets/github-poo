@@ -1,16 +1,14 @@
-var express = require('express');
-var router = express.Router();
 var mongoose = require('mongoose');
 var User = require('../models/users.js');
-var server = require('../config/server.js');
 var crypto = require('crypto');
 var https = require('https');
 var urlModule = require('url');
 var nodemailer = require('nodemailer');
+var server = require('../config/server.js');
 
 // Fetches the list of all repository claims
 // and their statuses that the user has
-router.post('/claims', (req, res) => {
+function postClaims(req, res) {
   console.log("POST /user/claims");
   if (!req.body.email) {
     res.json({
@@ -29,11 +27,11 @@ router.post('/claims', (req, res) => {
       }
     })
   }
-})
+}
 
 // Request that an email be sent with code
 // to be added to repository
-router.post("/make-claim", (req, res) => {
+function postMakeClaim(req, res) {
   console.log("POST /user/make-claim");
   //TODO: data object validation for security
   if (!req.body.email || !req.body.url) {
@@ -144,6 +142,6 @@ router.post("/make-claim", (req, res) => {
 
     })
   }
-})
+}
 
-module.exports = router;
+module.exports = { postClaims, postMakeClaim };
